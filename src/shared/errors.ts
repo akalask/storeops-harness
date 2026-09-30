@@ -64,6 +64,11 @@ export class InternalError extends AppError {
   readonly statusCode = 500;
 }
 
+export class NoResponsiblePartyError extends AppError {
+  readonly code = "NO_RESPONSIBLE_PARTY";
+  readonly statusCode = 500;
+}
+
 export function isAppError(err: unknown): err is AppError {
   return err instanceof AppError;
 }

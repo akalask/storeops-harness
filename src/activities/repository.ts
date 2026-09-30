@@ -20,6 +20,7 @@ export class ActivitiesRepository {
       category: input.category,
       assigneeId: input.assigneeId ?? null,
       dueDate: input.dueDate ?? null,
+      slaBreachDetectedAt: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -56,5 +57,23 @@ export class ActivitiesRepository {
 
   delete(id: string): boolean {
     return this.tasks.delete(id);
+  }
+
+  /** Read-only scan used by the SLA sweep — HIGH/CRITICAL, not DONE, past due. */
+  findOverdueHighPriority(now: Date): Task[] {
+    return Array.from(this.tasks.values()).filter((t) => {
+      if (t.status === "DONE") return false;
+      if (t.priority !== "HIGH" && t.priority !== "CRITICAL") return false;
+      if (!t.dueDate) return false;
+      return new Date(t.dueDate).getTime() < now.getTime();
+    });
+  }
+
+  markSlaBreachDetected(id: string, detectedAt: string): Task | null {
+    const existing = this.tasks.get(id);
+    if (!existing) return null;
+    const updated: Task = { ...existing, slaBreachDetectedAt: detectedAt, updatedAt: new Date().toISOString() };
+    this.tasks.set(id, updated);
+    return updated;
   }
 }

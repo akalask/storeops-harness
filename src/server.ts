@@ -20,15 +20,14 @@ import { ReportsRepository } from "./reports/repository";
 
 export function createApp(): Router {
   // --- wire each module's own 3 layers (Section 3.3) ---
+  const staffRepo = new StaffRepository();
+  const staffService = new StaffService(staffRepo);
+
   const activitiesRepo = new ActivitiesRepository();
-  const activitiesService = new ActivitiesService(activitiesRepo);
+  const activitiesService = new ActivitiesService(activitiesRepo, staffService);
 
   const programmesRepo = new ProgrammesRepository();
   const programmesService = new ProgrammesService(programmesRepo);
-
-  const staffRepo = new StaffRepository();
-  const staffService = new StaffService(staffRepo);
-  void staffService; // exported below for other modules' read-only lookups; not yet wired to a route
 
   const alertsRepo = new AlertsRepository();
   const alertsService = new AlertsService(alertsRepo);

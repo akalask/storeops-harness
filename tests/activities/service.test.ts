@@ -2,10 +2,12 @@ import test from "node:test";
 import assert from "node:assert";
 import { ActivitiesRepository } from "../../src/activities/repository";
 import { ActivitiesService } from "../../src/activities/service";
+import { StaffRepository } from "../../src/staff/repository";
+import { StaffService } from "../../src/staff/service";
 import { NotFoundError, ValidationError } from "../../src/shared/errors";
 
 function makeService() {
-  return new ActivitiesService(new ActivitiesRepository());
+  return new ActivitiesService(new ActivitiesRepository(), new StaffService(new StaffRepository()));
 }
 
 test("createTask creates a task with TODO status by default", () => {

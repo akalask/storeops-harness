@@ -12,6 +12,7 @@ export interface Task {
   category: TaskCategory;
   assigneeId: string | null;
   dueDate: string | null; // ISO date string
+  slaBreachDetectedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
