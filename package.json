@@ -1,0 +1,22 @@
+{
+  "name": "storeops-api",
+  "version": "1.0.0",
+  "description": "StoreOps Retail Store Operations Management REST API (capstone reference codebase)",
+  "main": "dist/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc --noEmit false -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "node scripts/lint.js",
+    "test": "npm run build && node --test dist/tests/**/*.test.js",
+    "start": "npm run build && node dist/src/server.js",
+    "verify": "npm run typecheck && npm run lint && npm run test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "note": "This project deliberately uses zero runtime dependencies (no Express/Jest/supertest/ESLint). See DESIGN_BRIEF.md Section D for the architectural decision and rationale. A custom minimal router replaces Express, node:test replaces Jest+supertest, and a small custom AST-free lint script replaces ESLint for the specific StoreOps architecture rules."
+}
