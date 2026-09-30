@@ -14,8 +14,8 @@ score — it is entirely the exit codes of three real commands:
 | Check | Command | What it catches |
 |---|---|---|
 | Type safety | `npm run typecheck` (`tsc --noEmit`) | Any TypeScript type error anywhere in `src/` or `tests/` |
-| Architecture rules | `npm run lint` (`scripts/lint.js`) | Module boundary violations, event-bus-only violations, raw `Error` throws, layer-separation violations, read-only-reports violations — the 5 rules in `architecture-principles/SKILL.md`, each mapped 1:1 to a lint rule |
-| Tests | `npm run test` (`node --test`) | Any failing test, including any test the Generator itself wrote |
+| Architecture rules | `npm run lint` (ESLint + dependency-cruiser) | Module boundary violations, event-bus-only violations, raw `Error` throws, layer-separation violations, read-only-reports violations — the 5 rules in `architecture-principles/SKILL.md` |
+| Tests | `npm run test` (Jest) | Any failing test, including any test the Generator itself wrote |
 
 **Hard gate:** any non-zero exit code from any of the three ⇒
 **Architecture Compliance = 0, and the overall verdict is FAIL**,
@@ -24,10 +24,10 @@ prose in `generator-summary.md`.
 
 Why these three specific commands and not something softer: each one
 maps directly to one of the four client failure modes from
-`app-context/SKILL.md`. `lint`'s `module-boundary` and `event-bus-only`
-rules catch failure modes #1 and #4. `lint`'s `error-contract` rule
-catches failure mode #2. `test` (combined with Dimension 2's coverage
-check) catches failure mode #3. There is no acceptable "soft" version
+`app-context/SKILL.md`. The architecture checks' module-boundary and
+event-bus-only rules catch failure modes #1 and #4. ESLint's
+error-contract rule catches failure mode #2. `test` (combined with
+Dimension 2's coverage check) catches failure mode #3. There is no acceptable "soft" version
 of any of these — a module boundary violation is either present in the
 diff or it isn't; there's no partial credit for "mostly" respecting the
 event bus.

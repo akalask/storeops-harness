@@ -20,9 +20,8 @@ import { ProgrammesRepository } from "../programmes/repository";
 import { ProgrammesService } from "../programmes/service";
 ```
 
-Checked automatically by `scripts/lint.js` rule `module-boundary`
-(scans every import statement in `src/` for `from ".../repository"`
-crossing a module folder boundary).
+Checked automatically by dependency-cruiser rules named
+`module-boundary-<module>`.
 
 ## Rule 2 — Event Bus Only
 
@@ -46,7 +45,8 @@ eventBus.emit("SLA_BREACH", { taskId, departmentLeadId, storeId });
 import { StaffService } from "../staff/service";
 ```
 
-Checked automatically by `scripts/lint.js` rule `event-bus-only`.
+Checked automatically by dependency-cruiser rules named
+`event-bus-only-<module>`.
 
 ## Rule 3 — Error Contract
 
@@ -63,8 +63,8 @@ throw new Error("task not found");
 throw new NotFoundError(`Task ${id} not found`);
 ```
 
-Checked automatically by `scripts/lint.js` rule `error-contract`
-(regex scan for `throw new Error(` in `service.ts`/`routes.ts` files).
+Checked automatically by ESLint's `no-restricted-syntax` rule, using an
+AST selector to reject `throw new Error(...)` in service and route files.
 
 ## Rule 4 — Layer Separation
 
@@ -81,9 +81,9 @@ import { ActivitiesRepository } from "./repository";
 import { ActivitiesService } from "./service";
 ```
 
-Checked automatically by `scripts/lint.js` rule `layer-separation`
-(routes must not import any `repository.ts`; repositories must not
-import `shared/router` or `node:http`).
+Checked automatically by dependency-cruiser's `layer-separation-routes`
+rule and ESLint's repository import restrictions (`express`,
+`node:http`, and the retired shared router).
 
 ## Rule 5 — Read-Only Reports
 
@@ -93,9 +93,7 @@ service layers for reads, exactly like any other module's read-only
 access, but no other module's create/update/delete operation may
 originate from `reports`.
 
-Checked automatically by `scripts/lint.js` rule `read-only-reports`
-(scans `src/reports/` for any repository import outside its own
-module).
+Checked automatically by dependency-cruiser's `read-only-reports` rule.
 
 ## What the Evaluator Cannot Automate (and Checks by Reading Code)
 

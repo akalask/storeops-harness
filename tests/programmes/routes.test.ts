@@ -1,22 +1,15 @@
-import test from "node:test";
+import { describe, test } from "@jest/globals";
 import assert from "node:assert";
-import * as http from "node:http";
 import { createApp } from "../../src/server";
-import { request } from "../helpers/httpClient";
+import request from "supertest";
 
-const TEST_PORT = 4102;
-
-test("programmes routes: create, list, add member", async (t) => {
+describe("programmes routes: create, list, add member", () => {
   const app = createApp();
-  const server = http.createServer((req, res) => {
-    void app.handle(req, res);
-  });
-  await new Promise<void>((resolve) => server.listen(TEST_PORT, resolve));
 
   let programmeId = "";
 
-  await t.test("POST /api/programmes creates a programme", async () => {
-    const res = await request(TEST_PORT, "POST", "/api/programmes", {
+  test("POST /api/programmes creates a programme", async () => {
+    const res = await request(app).post("/api/programmes").send({
       storeId: "store-1",
       name: "Winter Seasonal Rollout",
     });
@@ -26,15 +19,15 @@ test("programmes routes: create, list, add member", async (t) => {
     programmeId = body.project.id;
   });
 
-  await t.test("GET /api/programmes?storeId=... lists it", async () => {
-    const res = await request(TEST_PORT, "GET", "/api/programmes?storeId=store-1");
+  test("GET /api/programmes?storeId=... lists it", async () => {
+    const res = await request(app).get("/api/programmes?storeId=store-1");
     assert.strictEqual(res.status, 200);
     const body = res.body as { projects: unknown[] };
     assert.ok(body.projects.length >= 1);
   });
 
-  await t.test("POST /api/programmes/:id/members adds a member", async () => {
-    const res = await request(TEST_PORT, "POST", `/api/programmes/${programmeId}/members`, {
+  test("POST /api/programmes/:id/members adds a member", async () => {
+    const res = await request(app).post(`/api/programmes/${programmeId}/members`).send({
       userId: "user-associate-1",
       role: "ASSOCIATE",
     });
@@ -43,13 +36,12 @@ test("programmes routes: create, list, add member", async (t) => {
     assert.strictEqual(body.project.members.length, 1);
   });
 
-  await t.test("POST /api/programmes/:id/members with invalid role returns 400", async () => {
-    const res = await request(TEST_PORT, "POST", `/api/programmes/${programmeId}/members`, {
+  test("POST /api/programmes/:id/members with invalid role returns 400", async () => {
+    const res = await request(app).post(`/api/programmes/${programmeId}/members`).send({
       userId: "user-x",
       role: "NOT_A_ROLE",
     });
     assert.strictEqual(res.status, 400);
   });
 
-  await new Promise<void>((resolve) => server.close(() => resolve()));
 });

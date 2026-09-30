@@ -24,11 +24,10 @@ staff, and view performance reports by store and region.
 
 ## Stack (as actually deployed in this repository)
 
-TypeScript (strict mode), a native `http`-based router (not Express —
-see DESIGN_BRIEF.md Section D for why), `node:test` for tests (not
-Jest/supertest), and a custom lint script at `scripts/lint.js` (not
-ESLint/dependency-cruiser) enforcing the StoreOps-specific rules in
-`architecture-principles/SKILL.md`. In-memory storage, no database.
+TypeScript (strict mode), Express for HTTP routing, Jest + supertest
+for tests, and ESLint + dependency-cruiser enforcing the StoreOps-
+specific rules in `architecture-principles/SKILL.md`. In-memory
+storage, no database.
 
 ## Where Things Live
 
@@ -36,11 +35,10 @@ ESLint/dependency-cruiser) enforcing the StoreOps-specific rules in
 src/
   shared/errors.ts      <- AppError hierarchy, every module's errors extend this
   shared/eventBus.ts    <- the only permitted channel for cross-module side effects
-  shared/router.ts       <- the HTTP layer every module's routes.ts plugs into
   <module>/types.ts      <- entity + input/output types
   <module>/repository.ts <- data access only
   <module>/service.ts    <- business logic, validation, error throwing, event emission
-  <module>/routes.ts      <- HTTP parsing/validation only, calls service
+   <module>/routes.ts      <- Express HTTP parsing/validation only, calls service
   server.ts               <- wires all 5 modules' routers together
 tests/<module>/...        <- mirrors src/<module>/ structure
 .harness/

@@ -2,19 +2,19 @@
  * Routes layer — HTTP concerns + request validation ONLY.
  * No business logic here (Section 3.5 "Layer separation").
  */
-import { Router } from "../shared/router";
+import { Router } from "express";
 import { ValidationError } from "../shared/errors";
 import { ActivitiesService } from "./service";
 import { CreateTaskInput, TaskCategory, TaskPriority, UpdateTaskInput } from "./types";
 
 export function buildActivitiesRouter(service: ActivitiesService): Router {
-  const router = new Router();
+  const router = Router();
 
   // GET /api/activities (optional programme and status filters)
   router.get("/api/activities", (req, res) => {
     const tasks = service.listTasks({
-      programmeId: req.query.programmeId,
-      status: req.query.status,
+      programmeId: req.query.programmeId as string | undefined,
+      status: req.query.status as string | undefined,
     });
     res.status(200).json({ tasks });
   });

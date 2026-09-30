@@ -69,7 +69,7 @@ partially ignores:
   every agent's actions can be traced back to a real, motivating
   problem rather than an abstract style preference. `architecture-
   principles` states the 5 non-negotiable rules with a bad/good code
-  example for each, plus which `scripts/lint.js` rule checks it
+  example for each, plus which ESLint or dependency-cruiser rule checks it
   automatically.
 - **Generator-specific (`coding-conventions`, `how-to-test`,
   `sprint-decomposition`)** — `coding-conventions` is deliberately
@@ -199,7 +199,7 @@ skill file if the same category of mistake has now shown up in
 
 ## Section D — Architectural Decisions
 
-### Decision 1: Zero-dependency stack (native `http` + `node:test` + custom lint) instead of Express + Jest + supertest + ESLint
+### Decision 1 (superseded): Zero-dependency stack instead of Express + Jest + supertest + ESLint
 
 - **Alternatives considered:** (a) write the code assuming the
   document-specified stack and leave it unverified in this sandbox; (b)
@@ -213,14 +213,18 @@ skill file if the same category of mistake has now shown up in
   path makes every claim in this repository's `.harness/reviews/`
   verifiable by re-running the same three commands, right now, by
   anyone.
-- **Assumption this decision depends on:** that a reviewer values a
+- **Assumption at the time:** that a reviewer valued a
   harness whose every claimed PASS/FAIL is independently re-runnable
   over one that more closely matches the letter of the document's
   stack table. If a reviewer instead strictly requires Express/Jest by
-  name regardless of verifiability, this decision should be revisited
-  on a machine with registry access — the architecture (Router
-  interface, AppError hierarchy, EventBus) was written to make that
-  swap mechanical, not a rewrite.
+  name regardless of verifiability, this decision should be revisited.
+
+**Current status:** npm registry access is now available, so the
+zero-dependency constraint no longer applies. The repository has been
+migrated to Express, Jest + supertest, ESLint, and dependency-cruiser;
+`npm run verify` remains the executable pre-CI gate. The original
+rationale above records the historical sandbox constraint, not the
+current stack.
 
 ### Decision 2: `eventBus` as a process-wide singleton rather than a per-`createApp()` instance
 

@@ -11,8 +11,9 @@ verify business rule compliance").
 
 ## Framework
 
-`node:test` + `node:assert`, imported directly (no Jest, no supertest —
-see `app-context/SKILL.md`). Two test styles exist in this codebase:
+Jest provides the test runner and `node:assert` provides assertions.
+Import test functions from `@jest/globals`. Two test styles exist in
+this codebase:
 
 ### Unit tests (business logic, no HTTP)
 
@@ -20,7 +21,7 @@ Instantiate the service directly against a fresh repository. See
 `tests/activities/service.test.ts` for the pattern:
 
 ```ts
-import test from "node:test";
+import { test } from "@jest/globals";
 import assert from "node:assert";
 import { ActivitiesRepository } from "../../src/activities/repository";
 import { ActivitiesService } from "../../src/activities/service";
@@ -42,13 +43,26 @@ test("createTask throws ValidationError (not a raw Error) for missing title", ()
 
 ### Integration tests (HTTP-level, via the real router)
 
-Start a real server on a dedicated test port, use the
-`tests/helpers/httpClient.ts` `request()` helper (NOT global `fetch` —
-this project has no DOM lib types), and close the server at the end.
-See `tests/activities/routes.test.ts` for the full pattern. **Each test
-file that starts a server must use a port number not used by any other
-test file** — check existing test files for ports already claimed
-(4101, 4102, 4103 are taken as of the baseline; use 4104+ for new ones).
+Use supertest directly against the Express app; it manages the temporary
+server, so tests need no fixed ports or explicit server cleanup. See
+`tests/activities/routes.test.ts` for the full pattern:
+
+```ts
+import { describe, test } from "@jest/globals";
+import assert from "node:assert";
+import request from "supertest";
+import { createApp } from "../../src/server";
+
+describe("activities routes", () => {
+  const app = createApp();
+  test("creates a task", async () => {
+    const response = await request(app)
+      .post("/api/activities")
+      .send({ storeId: "store-1", title: "Restock", priority: "HIGH", category: "RESTOCKING" });
+    assert.strictEqual(response.status, 201);
+  });
+});
+```
 
 ## The Rule That Matters Most: Test the Business Rule, Not the Shape
 
@@ -60,7 +74,7 @@ acceptance criterion in the sprint contract names an observable outcome
 // WEAK — this is exactly failure mode #3. Passes even if the SLA logic
 // is completely wrong, as long as the endpoint returns 200.
 test("bulk update endpoint works", async () => {
-  const res = await request(PORT, "PATCH", "/api/activities/bulk-status", {...});
+  const res = await request(app).patch("/api/activities/bulk-status").send({...});
   assert.strictEqual(res.status, 200);
 });
 
@@ -88,11 +102,11 @@ dimension asks too.
 
 ## Test Isolation Note
 
-`eventBus` is a **process-wide singleton** (see
-`src/shared/eventBus.ts`), not recreated per test. Tests that register
-a listener (e.g., to capture emitted events) should register it inside
-the test itself, on the shared `eventBus`, and should not assume no
-other listeners exist — multiple `createApp()` calls across test files
-in the same process each register their own subscriptions, so a test
-asserting "exactly one notification was created" should query its own
-service/repository state, not just count total emissions on the bus.
+`eventBus` is a **process-wide singleton within a Jest test environment**
+(see `src/shared/eventBus.ts`), not recreated per test. Tests that
+register a listener (e.g., to capture emitted events) should register it
+inside the test itself and should not assume no other listeners exist.
+Multiple `createApp()` calls in one test environment each register
+subscriptions, so a test asserting "exactly one notification was
+created" should query its own service/repository state, not just count
+total emissions on the bus.

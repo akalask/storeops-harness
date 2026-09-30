@@ -8,10 +8,10 @@ the baseline — not generic TypeScript, StoreOps TypeScript.
 
 ## Stack Reminder
 
-No Express, no Jest, no ESLint — see `app-context/SKILL.md`. Use the
-existing `Router` class (`src/shared/router.ts`), the existing
-`AppError` hierarchy, and the existing `eventBus` singleton. Do not
-introduce a new HTTP framework, test framework, or error base class.
+Use Express routers, Jest + supertest, and ESLint + dependency-cruiser
+as configured in the repository. Keep the existing `AppError`
+hierarchy and `eventBus` singleton; do not introduce another HTTP or
+test framework, or another error base class.
 
 ## File Naming and Layout
 
@@ -59,16 +59,13 @@ introduce a new HTTP framework, test framework, or error base class.
 
 ## Router Usage
 
-- Route handlers are `(req, res) => void | Promise<void>`. Throw
-  `AppError` subclasses directly — the router's `handle()` method
-  catches them and maps `statusCode`/`code` to the response
-  automatically. Do not manually catch-and-format AppErrors in a route
-  handler; that's already done centrally.
-- Query params arrive as `req.query.<name>` (always `string | undefined`
-  — validate presence explicitly, there's no automatic required-param
-  mechanism).
-- Path params arrive as `req.params.<name>` (always `string`, guaranteed
-  present if the route matched).
+- Define routes with `express.Router()` and mount module routers in
+  `src/server.ts`. Throw `AppError` subclasses directly; centralized
+  Express error middleware maps them to the response. Do not manually
+  catch-and-format AppErrors in a route handler.
+- Express query values are broader than strings in the type definitions;
+  narrow a scalar query value to `string | undefined` before validation.
+- Path params are typed as strings for the matched route.
 
 ## A Worked Example (from the baseline — follow this shape)
 

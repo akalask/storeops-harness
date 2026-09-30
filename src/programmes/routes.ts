@@ -1,14 +1,14 @@
-import { Router } from "../shared/router";
+import { Router } from "express";
 import { ValidationError } from "../shared/errors";
 import { ProgrammesService } from "./service";
 import { AddMemberInput, CreateProjectInput } from "./types";
 
 export function buildProgrammesRouter(service: ProgrammesService): Router {
-  const router = new Router();
+  const router = Router();
 
   // GET /api/programmes (authenticated store's programmes; storeId passed as query for this reference app)
   router.get("/api/programmes", (req, res) => {
-    const storeId = req.query.storeId;
+    const storeId = req.query.storeId as string | undefined;
     if (!storeId) throw new ValidationError("storeId query parameter is required");
     const projects = service.listForStore(storeId);
     res.status(200).json({ projects });

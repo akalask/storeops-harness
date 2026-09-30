@@ -15,9 +15,9 @@ silently.
 2. `.harness/skills/architecture-principles/SKILL.md`
 3. `.harness/skills/coding-conventions/SKILL.md` — naming, file layout,
    the AppError hierarchy, EventBus usage patterns specific to this
-   TypeScript/native-http stack.
+   TypeScript/Express stack.
 4. `.harness/skills/how-to-test/SKILL.md` — test file conventions,
-   coverage expectations, the `node:test` patterns this project uses.
+   coverage expectations, the Jest + supertest patterns this project uses.
 5. On a retry (iteration 2 or 3): the previous `evaluator-feedback.md`,
    provided by the orchestrator as this invocation's seed input.
 

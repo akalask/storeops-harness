@@ -125,7 +125,7 @@ this repository:
 
 ```
 npm run typecheck   # tsc --noEmit
-npm run lint        # scripts/lint.js — custom StoreOps architecture rules
+npm run lint        # ESLint + dependency-cruiser StoreOps architecture rules
 npm run test        # node --test (build + run)
 ```
 

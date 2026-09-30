@@ -43,8 +43,8 @@ test with a plausible-sounding name exists.
 
 ### Step 3 — Confirm layer separation isn't satisfied only "on paper"
 
-`scripts/lint.js`'s `layer-separation` rule only scans import
-statements. It cannot catch a Generator that keeps the *import*
+The automated `layer-separation-routes` rule only checks imports. It
+cannot catch a Generator that keeps the *import*
 boundaries clean but moves business logic into a route handler's
 inline closure to dodge the rule's letter while violating its intent.
 Skim each changed `routes.ts` file: if there's an `if`/loop containing
