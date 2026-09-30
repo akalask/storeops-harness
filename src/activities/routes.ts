@@ -64,5 +64,24 @@ export function buildActivitiesRouter(service: ActivitiesService): Router {
     res.status(204).json(undefined);
   });
 
+  // POST /api/activities/run-sla-sweep
+  // NOT part of either sprint contract (both explicitly scoped this out as a
+  // "future concern" — see sprint-1-contract.md and sprint-2-contract.md
+  // "Out of Scope" sections). Added afterward, outside the harness's
+  // Planner/Generator/Evaluator loop, purely so the SLA feature is
+  // demonstrable through the running application per Section 3.4's
+  // requirement ("call the new endpoint via curl ... show a successful
+  // response"). This is called out explicitly in REFLECTION.md as a
+  // deliberate, undocumented-by-a-sprint-contract addition — a real
+  // engagement would put this behind its own sprint contract rather than
+  // have an architect hand-add it post-hoc.
+  router.post("/api/activities/run-sla-sweep", (req, res) => {
+    const body = req.body as { gracePeriodHours?: number } | undefined;
+    const gracePeriodHours = body?.gracePeriodHours ?? 4;
+    service.checkSlaBreaches(new Date());
+    service.checkSlaEscalations(new Date(), gracePeriodHours);
+    res.status(200).json({ message: "SLA sweep complete", gracePeriodHours });
+  });
+
   return router;
 }

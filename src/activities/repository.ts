@@ -21,6 +21,7 @@ export class ActivitiesRepository {
       assigneeId: input.assigneeId ?? null,
       dueDate: input.dueDate ?? null,
       slaBreachDetectedAt: null,
+      slaEscalatedAt: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -73,6 +74,21 @@ export class ActivitiesRepository {
     const existing = this.tasks.get(id);
     if (!existing) return null;
     const updated: Task = { ...existing, slaBreachDetectedAt: detectedAt, updatedAt: new Date().toISOString() };
+    this.tasks.set(id, updated);
+    return updated;
+  }
+
+  /** Read-only scan used by the escalation sweep — breached, not yet escalated, not DONE. */
+  findUnescalatedBreaches(): Task[] {
+    return Array.from(this.tasks.values()).filter(
+      (t) => t.slaBreachDetectedAt !== null && t.slaEscalatedAt === null && t.status !== "DONE"
+    );
+  }
+
+  markSlaEscalated(id: string, escalatedAt: string): Task | null {
+    const existing = this.tasks.get(id);
+    if (!existing) return null;
+    const updated: Task = { ...existing, slaEscalatedAt: escalatedAt, updatedAt: new Date().toISOString() };
     this.tasks.set(id, updated);
     return updated;
   }

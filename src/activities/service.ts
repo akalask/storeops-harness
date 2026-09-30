@@ -87,4 +87,32 @@ export class ActivitiesService {
       this.repo.markSlaBreachDetected(task.id, now.toISOString());
     }
   }
+
+  /**
+   * Sprint 2 — grace-period escalation. For tasks already flagged as
+   * breached by checkSlaBreaches and still unresolved, escalate to the
+   * Store Manager once the breach has been outstanding longer than
+   * gracePeriodHours. Fires at most once per breach.
+   */
+  checkSlaEscalations(now: Date, gracePeriodHours: number): void {
+    const candidates = this.repo.findUnescalatedBreaches();
+    for (const task of candidates) {
+      // findUnescalatedBreaches already guarantees slaBreachDetectedAt is non-null
+      const breachedAt = new Date(task.slaBreachDetectedAt as string);
+      const elapsedHours = (now.getTime() - breachedAt.getTime()) / (60 * 60 * 1000);
+      if (elapsedHours < gracePeriodHours) continue; // still within grace period
+
+      const managers = this.staffService.findUsersByRole(task.storeId, "STORE_MANAGER");
+      if (managers.length === 0) {
+        throw new NoResponsiblePartyError(`No Store Manager found for store ${task.storeId}`);
+      }
+
+      eventBus.emit("SLA_ESCALATION", {
+        taskId: task.id,
+        storeManagerId: managers[0].id,
+        storeId: task.storeId,
+      });
+      this.repo.markSlaEscalated(task.id, now.toISOString());
+    }
+  }
 }

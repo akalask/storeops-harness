@@ -13,6 +13,7 @@ export interface Task {
   assigneeId: string | null;
   dueDate: string | null; // ISO date string
   slaBreachDetectedAt: string | null;
+  slaEscalatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
